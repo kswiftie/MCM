@@ -2,6 +2,7 @@
 #include <immintrin.h>
 #include <random>
 #include <cmath>
+#include <future>
 #include <chrono>
 
 float definite_integral_128(float a, float b, float (*function)(float x), int N, std::mt19937 gen) {
@@ -77,9 +78,12 @@ int main() {
     float a2 = pi / 2, b2 = pi; auto function2 { [](float x) -> float { return std::sin(x) / (std::pow(std::cos(x), 2) + 1); } };
     float a3 = -0.5, b3 = 0.5; auto function3 { [](float x) -> float { return std::sin(x) / (std::acos(2 * x)); } };
 
-    float integral_1 = definite_integral_128(a1, b1, function1, N, gen); // choose function what you want to execute
-    float integral_2 = definite_integral_128(pi / 2, pi, function2, N, gen);
-    float integral_3 = definite_integral_128(a3, b3, function2, N, gen);
+    std::future <float> integral_1_th = std::async(definite_integral_128, a1, b1, function1, N, gen);
+    std::future <float> integral_2_th = std::async(definite_integral_128, a1, b1, function1, N, gen);
+    std::future <float> integral_3_th = std::async(definite_integral_128, a1, b1, function1, N, gen);
+
+    float integral_1 = integral_1_th.get(), integral_2 = integral_2_th.get(), integral_3 = integral_3_th.get();
+
     std::cout << "Pi number: " << pi << "\n";
     std::cout << "definite integral of function (2 ^ x) * cos(x) from " << a1 << " to " << b1 << " is " << integral_1 << "\n";
     std::cout << "definite integral of function sin(x) / (cos(x)^2 + 1) from " << a2 << " to " << b2 << " is " << integral_2 << "\n";
